@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rifa de 100 Números</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 10px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .numero {
+      padding: 15px;
+      background: #4caf50;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .ocupado {
+      background: #f44336 !important;
+      cursor: not-allowed;
+    }
+    #formulario {
+      display: none;
+      margin-top: 20px;
+    }
+    input {
+      margin: 5px;
+      padding: 8px;
+      width: 80%;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Rifa de 100 Números</h1>
+<p>Haz clic en un número disponible para registrarlo.</p>
+<div id="grid"></div>
+
+<div id="formulario">
+  <h3>Reservar número <span id="numeroSeleccionado"></span></h3>
+  <input type="text" id="nombre" placeholder="Tu nombre" required><br>
+  <input type="text" id="contacto" placeholder="Tu contacto" required><br>
+  <button onclick="guardarDatos()">Confirmar</button>
+</div>
+
+<script>
+  const grid = document.getElementById("grid");
+  const formulario = document.getElementById("formulario");
+  const numeroSeleccionado = document.getElementById("numeroSeleccionado");
+  const nombreInput = document.getElementById("nombre");
+  const contactoInput = document.getElementById("contacto");
+
+  let datos = JSON.parse(localStorage.getItem("rifa")) || {};
+
+  function renderGrid() {
+    grid.innerHTML = "";
+    for (let i = 1; i <= 100; i++) {
+      const div = document.createElement("div");
+      div.textContent = i;
+      div.className = "numero";
+      if (datos[i]) {
+        div.classList.add("ocupado");
+        div.title = `${datos[i].nombre} (${datos[i].contacto})`;
+      } else {
+        div.onclick = () => mostrarFormulario(i);
+      }
+      grid.appendChild(div);
+    }
+  }
+
+  let numeroActual = null;
+
+  function mostrarFormulario(numero) {
+    numeroActual = numero;
+    numeroSeleccionado.textContent = numero;
+    nombreInput.value = "";
+    contactoInput.value = "";
+    formulario.style.display = "block";
+    window.scrollTo(0, document.body.scrollHeight);
+  }
+
+  function guardarDatos() {
+    const nombre = nombreInput.value.trim();
+    const contacto = contactoInput.value.trim();
+    if (!nombre || !contacto) {
+      alert("Por favor completa los campos.");
+      return;
+    }
+    datos[numeroActual] = { nombre, contacto };
+    localStorage.setItem("rifa", JSON.stringify(datos));
+    formulario.style.display = "none";
+    renderGrid();
+  }
+
+  renderGrid();
+</script>
+
+</body>
+</html>
